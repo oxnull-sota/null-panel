@@ -7,7 +7,7 @@
 moveAble = false
 moveAbleX = false
 moveMenu = false
-showMenu = true
+showMenu = false
 totalWeight = 0.0
 y = 0
 x = 0

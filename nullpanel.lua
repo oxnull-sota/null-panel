@@ -32,7 +32,7 @@ function ShroudOnStart()
 end
 
 function ShroudOnConsoleInput(type, source, message)
-   if type == 'Local' and source == charName then
+   if type == 'Local' and source == string.match(charName, source) then
       if (string.match(message, "!np") or string.match(message, "!nullpanel") or string.match(message, "!config")) then
 	 if showMenu then
 	    showMenu = false
@@ -83,7 +83,8 @@ function ShroudOnUpdate()
       setAttunList()
       totalWeight = getInvetoryWeight()
       screenW = ShroudGetScreenX()
-      screeeH = ShroudGetScreenY()            
+      screeeH = ShroudGetScreenY()
+      charName = ShroudGetPlayerName()      
    end
 
    if ShroudGetOnKeyDown("Mouse0") and (moveAble) then

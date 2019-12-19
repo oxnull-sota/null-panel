@@ -1,3 +1,9 @@
+--[[
+   Author: Ox Null
+   Please feel free to modify or use this code how you see fit.
+   Current version is not organized or optimized with more features beeing add in future version.
+]]--
+
 moveAble = false
 moveAbleX = false
 moveMenu = false
@@ -117,19 +123,19 @@ function ShroudOnGUI()
 end
 
 function setAssets()
-   bgTexture = ShroudLoadTexture("bg.png")
-   borderTexture = ShroudLoadTexture("border.png")
-   buttonTexture = ShroudLoadTexture("button.png")
-   airAttun = ShroudLoadTexture("airattunement.png")
-   chaosAttun = ShroudLoadTexture("chaosattunement.png")
-   deathAttun = ShroudLoadTexture("deathattunement.png")
-   earthAttun = ShroudLoadTexture("earthattunement.png")
-   fireAttun = ShroudLoadTexture("fireattunement.png")
-   lifeAttun = ShroudLoadTexture("lifeattunement.png")
-   sunAttun = ShroudLoadTexture("sunattunement.png")
-   waterAttun = ShroudLoadTexture("waterattunement.png")
-   moonAttun = ShroudLoadTexture("lunarattunement.png")  
-   undeadIcon = ShroudLoadTexture("undeadmastery.png")    
+   bgTexture = ShroudLoadTexture("nullpanel/bg.png")
+   borderTexture = ShroudLoadTexture("nullpanel/border.png")
+   buttonTexture = ShroudLoadTexture("nullpanel/button.png")
+   airAttun = ShroudLoadTexture("nullpanel/airattunement.png")
+   chaosAttun = ShroudLoadTexture("nullpanel/chaosattunement.png")
+   deathAttun = ShroudLoadTexture("nullpanel/deathattunement.png")
+   earthAttun = ShroudLoadTexture("nullpanel/earthattunement.png")
+   fireAttun = ShroudLoadTexture("nullpanel/fireattunement.png")
+   lifeAttun = ShroudLoadTexture("nullpanel/lifeattunement.png")
+   sunAttun = ShroudLoadTexture("nullpanel/sunattunement.png")
+   waterAttun = ShroudLoadTexture("nullpanl/waterattunement.png")
+   moonAttun = ShroudLoadTexture("nullpanel/lunarattunement.png")  
+   undeadIcon = ShroudLoadTexture("nullpanel/undeadmastery.png")    
    width = ShroudGetScreenX() - 4
 end
 

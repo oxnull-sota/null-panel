@@ -1,7 +1,7 @@
 --[[
    Author: Ox Null
    Please feel free to modify or use this code how you see fit.
-   Current version is not organized or optimized with more features beeing add in future version.
+   Current version is not organized or optimized, with more features being add in future version.
 ]]--
 
 moveAble = false
@@ -133,7 +133,7 @@ function setAssets()
    fireAttun = ShroudLoadTexture("nullpanel/fireattunement.png")
    lifeAttun = ShroudLoadTexture("nullpanel/lifeattunement.png")
    sunAttun = ShroudLoadTexture("nullpanel/sunattunement.png")
-   waterAttun = ShroudLoadTexture("nullpanl/waterattunement.png")
+   waterAttun = ShroudLoadTexture("nullpanel/waterattunement.png")
    moonAttun = ShroudLoadTexture("nullpanel/lunarattunement.png")  
    undeadIcon = ShroudLoadTexture("nullpanel/undeadmastery.png")    
    width = ShroudGetScreenX() - 4

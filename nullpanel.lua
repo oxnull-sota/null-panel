@@ -3,7 +3,7 @@
    Please feel free to modify or use this code how you see fit.
    Current version is not organized or optimized, with more features being add in future version.
 ]]--
-
+version = "v0.2"
 moveAble = false
 moveAbleX = false
 moveMenu = false
@@ -17,12 +17,16 @@ multiColor = true
 time = os.time()
 text = ""
 sync = false
+syncCount = 0
 screenW = 0
 screenH = 0
 charName = ""
 
+
+mainColor = "#ccf2ff"
+
 function ShroudOnStart()
-   ShroudConsoleLog("[ff0000]Null Panel:[-]")      
+   ShroudConsoleLog(string.format("[ff0000]Null Panel %s:[-]", version))
    ShroudConsoleLog("[00e600]----------")   
    ShroudConsoleLog("Thank you for using Null Panel [b]>:D[/b]")
    ShroudConsoleLog("Here are a few commands:[-]")
@@ -69,13 +73,83 @@ function ShroudOnUpdate()
       setAssets()
       attunList = {}
       -- default panel stats, change if you want your own defaults upon reload
-      panelList = {500,501,14,27,8,16,17,22,46,32}
+      panelList = {14, 27, 8, 16, 17, 129, 131, 22, 46, 32}
       setAttunList()
+      syncList = {
+	 avoid = {
+	    high = 0,
+	    mid = 0,
+	    low = 0,
+	    count = 0,
+	 },
+	 resist = {
+	    high = 0,
+	    mid = 0,
+	    low = 0,
+	    count = 0,
+	 },
+	 dodge = {
+	    high = 0,
+	    mid = 0,
+	    low = 0,
+	    count = 0,
+	 },
+	 block = {
+	    high = 0,
+	    mid = 0,
+	    low = 0,
+	    count = 0,	    
+	 }
+      }	       
       totalWeight = getInvetoryWeight()
       screenW = ShroudGetScreenX()
       screeeH = ShroudGetScreenY()
       charName = ShroudGetPlayerName()
+      for i, value in pairs(panelList) do
+	 if value == 16 then 
+	    syncList.avoid.high = ShroudGetStatValueByNumber(16)
+	    syncList.avoid.mid = ShroudGetStatValueByNumber(16)
+	    syncList.avoid.low = ShroudGetStatValueByNumber(16)
+	 elseif value == 17 then
+	    syncList.resist.high = ShroudGetStatValueByNumber(17)
+	    syncList.resist.mid = ShroudGetStatValueByNumber(17)
+	    syncList.resist.low = ShroudGetStatValueByNumber(17)	    
+	 elseif value == 129 then
+	    syncList.dodge.high = ShroudGetStatValueByNumber(129)
+	    syncList.dodge.mid = ShroudGetStatValueByNumber(129)
+	    syncList.dodge.low = ShroudGetStatValueByNumber(129)	    
+	 elseif value == 131 then
+	    syncList.block.high = ShroudGetStatValueByNumber(131)
+	    syncList.block.mid = ShroudGetStatValueByNumber(131)
+	    syncList.block.low = ShroudGetStatValueByNumber(131)	    
+	 end
+      end
    end
+
+   for i, value in pairs(panelList) do
+      if syncList.avoid.count > 120 then
+	 syncList.avoid.count = 0
+	 syncList.avoid.high = ShroudGetStatValueByNumber(16)
+	 syncList.avoid.mid = ShroudGetStatValueByNumber(16)
+	 syncList.avoid.low = ShroudGetStatValueByNumber(16)
+      elseif syncList.resist.count > 120 then
+	 syncList.avoid.count = 0	 
+	 syncList.resist.high = ShroudGetStatValueByNumber(17)
+	 syncList.resist.mid = ShroudGetStatValueByNumber(17)
+	 syncList.resist.low = ShroudGetStatValueByNumber(17)
+      elseif syncList.dodge.count > 120 then
+	 syncList.avoid.count = 0	 
+	 syncList.dodge.high = ShroudGetStatValueByNumber(129)
+	 syncList.dodge.mid = ShroudGetStatValueByNumber(129)
+	 syncList.dodge.low = ShroudGetStatValueByNumber(129)
+      elseif syncList.block.count > 120 then
+ 	 syncList.avoid.count = 0	 
+	 syncList.block.high = ShroudGetStatValueByNumber(131)
+	 syncList.block.mid = ShroudGetStatValueByNumber(131)
+	 syncList.block.low = ShroudGetStatValueByNumber(131)	    
+      end
+   end
+   
    if (localTime - time) > 1 and init then
       time = localTime
       sync = not sync
@@ -208,7 +282,7 @@ function drawMenu()
    --bottom border
    ShroudDrawTexture(x, y + height, width + border, border, borderTexture)
    
-   ShroudGUILabel(x + width - 193, y + height - 20 ,200,20, "Mail all inquiries to Ox Null, v0.1")
+   ShroudGUILabel(x + width - 193, y + height - 20 ,200,20, string.format("Mail all inquiries to Ox Null, %s", version))
 
    if showAttun then
       if ShroudButton(x + 5, y + 5, 60, 40, buttonTexture, "Attun[-]", "Menu") then
@@ -308,7 +382,7 @@ function drawPanel()
       			attunList.AirRes						
       ))
    end
-   ShroudGUILabel(x0 + 14,y0 + 4,width0,20, string.format("<color=#ccf2ff>%s</color>", text))
+   ShroudGUILabel(x0 + 14,y0 + 4,width0,20, string.format("<color=%s>%s</color>", mainColor, text))
 end
 
 function drawMoveButtons()
@@ -379,9 +453,17 @@ function makeStringFromList(list)
 	    context = string.format("%s [Focus %d/%d +%.1f/%.1f]" ,context, ShroudGetStatValueByNumber(13), ShroudGetStatValueByNumber(27), ShroudGetStatValueByNumber(98), ShroudGetStatValueByNumber(10))	    
 	 end
       elseif list[i] == 8 then
-	 context = string.format("%s [%s %.1f/%.1f]" ,context, ShroudGetStatNameByNumber(8), totalWeight, ShroudGetStatValueByNumber(8))
-      -- else return default format.
+	 context = string.format("%s [%s %.1f/%.1f]", context, ShroudGetStatNameByNumber(8), totalWeight, ShroudGetStatValueByNumber(8))
+      elseif list[i] == 16 then
+	 context = syncStat(context, sync, "avoid", 16)
+      elseif list[i] == 17 then
+	 context = syncStat(context, sync, "resist", 17)	 
+      elseif list[i] == 129 then
+	 context = syncStat(context, sync, "dodge", 129)
+      elseif list[i] == 131 then
+	 context = syncStat(context, sync, "block", 131)	 
       else
+	 -- else return default format.	 
 	 context = string.format("%s [%s: %.1f]" ,context, ShroudGetStatNameByNumber(list[i]), ShroudGetStatValueByNumber(list[i]))	      
       end
    end
@@ -403,3 +485,38 @@ function showStats()
    ShroudConsoleLog("Total stats: " .. count + 2)
    ShroudConsoleLog("[00e600]----------[-]")      
 end
+
+function syncStat(inputString, sync, case, statNum)
+   -- return a formated string
+   local stat = ShroudGetStatValueByNumber(statNum)
+   local statName = ShroudGetStatNameByNumber(statNum)
+   local color
+   local bool = true
+   syncList[case].count = syncList[case].count + 1
+   if stat >= syncList[case].high and stat > syncList[case].mid then
+      color = "#00b300"
+      syncList[case].high = stat
+      bool = false
+      syncList[case].count = 0      
+      ConsoleLog(case .. " is High")
+
+   elseif stat >= syncList[case].mid and stat > syncList[case].low then
+      color = "#ffa31a"
+      syncList[case].mid = stat
+      ConsoleLog(case .. " is mid")      
+   else
+      color = mainColor
+      syncList[case].low = stat
+      ConsoleLog(case .. " is low")            
+   end
+
+   if bool == false and color == "#00b300" then
+      return string.format("%s [%s: <color=%s>%.1f</color>]", inputString, statName, color, stat)
+   elseif sync then
+      return string.format("%s [%s: <color=%s>%.1f</color>]", inputString, statName, color, stat)      
+   else
+      return string.format("%s [%s: %.1f]", inputString, statName, stat)
+   end
+end
+
+   

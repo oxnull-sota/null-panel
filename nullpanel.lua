@@ -1,37 +1,39 @@
 --[[
+   Null Panel
    Author: Ox Null
    Please feel free to modify or use this code how you see fit.
    Current version is not organized or optimized, with more features being add in future version.
 ]]--
-version = "v0.2"
-moveAble = false
-moveAbleX = false
-moveMenu = false
-showMenu = false
-totalWeight = 0.0
-y = 0
-x = 0
-init = false
-showAttun = true
-multiColor = true
-time = os.time()
-text = ""
-sync = false
-syncCount = 0
-screenW = 0
-screenH = 0
-charName = ""
 
-
-mainColor = "#ccf2ff"
 
 function ShroudOnStart()
+   version = "v0.2"
+   moveAble = false
+   moveAbleX = false
+   moveMenu = false
+   showMenu = false
+   totalWeight = 0.0
+   y = 0
+   x = 0
+   init = false
+   showAttun = true
+   multiColor = true
+   swapSlots = false
+   swapSelect = 0
+   time = os.time()
+   text = ""
+   sync = false
+   syncCount = 0
+   screenW = 0
+   screenH = 0
+   charName = ""
+   mainColor = "#ccf2ff"
+      
    ShroudConsoleLog(string.format("[ff0000]Null Panel %s:[-]", version))
    ShroudConsoleLog("[00e600]----------")   
-   ShroudConsoleLog("Thank you for using Null Panel [b]>:D[/b]")
-   ShroudConsoleLog("Here are a few commands:[-]")
-   ShroudConsoleLog("[ff3333]!np[-] (brings up menu), [ff3333]!list[-] (lists all stats greater than 0), [ff3333]!add #[-] (adds stat number to panel list), [ff3333]!remove #[-](remove stat in slot #)")
-   ShroudConsoleLog("[00e600]More to come in future versions.")
+   ShroudConsoleLog("Thank you for using Null Panel [b]>:D[/b][-]")
+   ShroudConsoleLog("[00e600]Here are a few commands: [-][ff3333]!np[-] (brings up menu), [ff3333]!list[-] (lists all stats greater than 0) [ff3333]!add #[-] (adds stat number to panel list), [ff3333]!remove #[-](remove stat in slot #) [ff3333]!replace # with #[-] (replace slot number with stat number) [ff3333]!swap # with #[-] (swap slot number with slot number)")
+   ShroudConsoleLog("[00e600]More to come in future versions.")   
    ShroudConsoleLog("----------[-]")      
 end
 
@@ -40,6 +42,7 @@ function ShroudOnConsoleInput(type, source, message)
       if (string.match(message, "!np") or string.match(message, "!nullpanel") or string.match(message, "!config")) then
 	 if showMenu then
 	    showMenu = false
+	    swapSlots = false
 	 else
 	    showMenu = true
 	 end
@@ -53,14 +56,26 @@ function ShroudOnConsoleInput(type, source, message)
 
       elseif string.match(message, "%d+") and (string.match(message, "!remove") or string.match(message, "!delete")) then
 	 local value = tonumber(string.match(message, "%d+"))
-	 removeList(panelList, (value))	 
+	 removeList(panelList, (value))
 
-      elseif string.match(message, "!help") or string.match(message, "!?") then
-	 ShroudConsoleLog("[ff0000]Null Panel:[-]")      	 
+      elseif string.match(message, "(%d+) (%a+) (%d+)") and (string.match(message, "!replace")) then
+	 local slot, word, stat = string.match(message, "(%d+) (%a+) (%d+)")
+	 slot = tonumber(slot)
+	 stat = tonumber(stat)
+	 replaceSlot(panelList, slot, stat)
+
+      elseif string.match(message, "(%d+) (%a+) (%d+)") and (string.match(message, "!swap") or string.match(message, "!switch")) then
+	 local slot, word, stat = string.match(message, "(%d+) (%a+) (%d+)")
+	 slot0 = tonumber(slot)
+	 slot1 = tonumber(stat)
+	 swapSlot(panelList, slot0, slot1)	 
+
+      elseif string.match(message, "!help") then
+      	 ShroudConsoleLog("[ff0000]Null Panel:[-]")      	 
       	 ShroudConsoleLog("[00e600]----------[-]")   	 
-      	 ShroudConsoleLog("[00e600]Here are a few commands: [-][ff3333]!np[-] (brings up menu), [ff3333]!list[-] (lists all stats greater than 0) [ff3333]!add #[-] (adds stat number to panel list), [ff3333]!remove #[-](remove stat in slot #)")
+      	 ShroudConsoleLog("[00e600]Here are a few commands: [-][ff3333]!np[-] (brings up menu), [ff3333]!list[-] (lists all stats greater than 0) [ff3333]!add #[-] (adds stat number to panel list), [ff3333]!remove #[-](remove stat in slot #) [ff3333]!replace # with #[-] (replace slot number with stat number) [ff3333]!swap # with #[-] (swap slot number with slot number)")
       	 ShroudConsoleLog("[00e600]More to come in future versions.")
-      	 ShroudConsoleLog("----------[-]")      	 
+      	 ShroudConsoleLog("----------[-]")
       end                  
    end
 end
@@ -70,10 +85,12 @@ function ShroudOnUpdate()
    if not init then
       if not ShroudServerTime then return end
       init = true
+
       setAssets()
       attunList = {}
       -- default panel stats, change if you want your own defaults upon reload
-      panelList = {14, 27, 8, 16, 17, 129, 131, 22, 46, 32}
+      -- HP, Focus, Avoidance, Resistance, Dodge, Block, Dex, Str, Int
+      panelList = {14, 27, 16, 17, 129, 131, 22, 46, 32}
       setAttunList()
       syncList = {
 	 avoid = {
@@ -303,9 +320,20 @@ function drawMenu()
 	 multiColor = true
       end	 
    end
+
+   if swapSlots then
+      if ShroudButton(x + width - 102, y + 5, 100, 40, buttonTexture, "Swap Slots[-]", "Menu") then
+	 swapSlots = false
+      end
+   else
+      if ShroudButton(x + width - 102, y + 5, 100, 40, buttonTexture, "Swap Slots[+]", "Menu") then
+	 swapSlots = true
+      end	 
+   end
    
    if ShroudButton(x + width, y, 60, 40, undeadIcon, "X", "Close")then
       showMenu = false
+      swapSlots =  false
    end
    
    local yoffset = 0      
@@ -316,12 +344,34 @@ function drawMenu()
       if i % 11 == 0 then
 	 yoffset = yoffset + 65
       end
-      if ShroudButton(x + 5 + ((i-1)% 10) * 65, y + 65 + (yoffset), 60, 40, buttonTexture, string.format("Slot %d", i), string.format("button %d", i)) then
-	 removeList(panelList, i)
-	 if (i - 1) % 11 == 0  then
-	    yoffset = yoffset - 65
+      if swapSlots then
+	 if i == swapSelect then
+	    if ShroudButton(x + 5 + ((i-1)% 10) * 65, y + 65 + (yoffset), 60, 40, bgTexture , string.format("Slot %d", i), string.format("button %d", i)) then
+	       if swapSelect < 1 then
+		  swapSelect = i
+	       else
+		  swapSlot(panelList, swapSelect, i)
+		  swapSelect = 0
+	       end
+	    end	    
+	 else
+	    if ShroudButton(x + 5 + ((i-1)% 10) * 65, y + 65 + (yoffset), 60, 40, deathAttun , string.format("Slot %d", i), string.format("button %d", i)) then
+	       if swapSelect < 1 then
+		  swapSelect = i
+	       else
+		  swapSlot(panelList, swapSelect, i)
+		  swapSelect = 0
+	       end
+	    end	    
 	 end
-      end	 
+      else
+	 if ShroudButton(x + 5 + ((i-1)% 10) * 65, y + 65 + (yoffset), 60, 40, buttonTexture, string.format("Slot %d", i), string.format("button %d", i)) then
+	    removeList(panelList, i)
+	    if (i - 1) % 11 == 0  then
+	       yoffset = yoffset - 65
+	    end
+	 end	 
+      end
    end
    
 end
@@ -432,6 +482,24 @@ function removeList(list, value)
    end
 end
 
+function replaceSlot(list, slot, stat)
+   list[slot] = stat
+   ShroudConsoleLog("[ff0000]Null Panel:[-]")            
+   ShroudConsoleLog("[00e600]----------")   	          
+   ShroudConsoleLog(string.format("Replaced Slot %d with Stat #%d %s, %.4f", slot, stat, ShroudGetStatNameByNumber(stat), ShroudGetStatValueByNumber(stat)))
+   ShroudConsoleLog("----------[-]")   	                   
+end
+
+function swapSlot(list, slot0, slot1)
+   local tempSlot = list[slot0]
+   list[slot0] = list[slot1]
+   list[slot1] = tempSlot
+   ShroudConsoleLog("[ff0000]Null Panel:[-]")            
+   ShroudConsoleLog("[00e600]----------")
+   ShroudConsoleLog("Swapped Slot " .. slot0 .. " with Slot " .. slot1)
+   ShroudConsoleLog("----------[-]")   	                      
+end
+
 function makeStringFromList(list)
    local context  = ""
    for i = 1, #list do
@@ -498,19 +566,16 @@ function syncStat(inputString, sync, case, statNum)
       syncList[case].high = stat
       bool = false
       syncList[case].count = 0      
-      ConsoleLog(case .. " is High")
 
    elseif stat >= syncList[case].mid and stat > syncList[case].low then
       color = "#ffa31a"
       syncList[case].mid = stat
-      ConsoleLog(case .. " is mid")      
    else
       color = mainColor
       syncList[case].low = stat
-      ConsoleLog(case .. " is low")            
    end
 
-   if bool == false and color == "#00b300" then
+   if bool == false or syncList[case].count < 30 then
       return string.format("%s [%s: <color=%s>%.1f</color>]", inputString, statName, color, stat)
    elseif sync then
       return string.format("%s [%s: <color=%s>%.1f</color>]", inputString, statName, color, stat)      
@@ -518,5 +583,6 @@ function syncStat(inputString, sync, case, statNum)
       return string.format("%s [%s: %.1f]", inputString, statName, stat)
    end
 end
+
 
    

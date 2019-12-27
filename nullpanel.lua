@@ -32,7 +32,7 @@ function ShroudOnStart()
    ShroudConsoleLog(string.format("[ff0000]Null Panel %s:[-]", version))
    ShroudConsoleLog("[00e600]----------")   
    ShroudConsoleLog("Thank you for using Null Panel [b]>:D[/b][-]")
-   ShroudConsoleLog("[00e600]Here are a few commands: [-][ff3333]!np[-] (brings up menu), [ff3333]!list[-] (lists all stats greater than 0) [ff3333]!add #[-] (adds stat number to panel list), [ff3333]!remove #[-](remove stat in slot #) [ff3333]!replace # with #[-] (replace slot number with stat number) [ff3333]!swap # with #[-] (swap slot number with slot number)")
+   ShroudConsoleLog("[00e600]Here are a few commands: [-][ff3333]!np[-] (brings up menu), [ff3333]!list[-] (lists all stats greater than 0) [ff3333]!add #[-] (adds stat number to panel list), [ff3333]!remove #[-](remove stat in slot #) [ff3333]!replace # with #[-] (replace slot number with stat number) [ff3333]!swap # with #[-] (swap slot number with slot number) [ff3333]!reset[-](resets sync stats to base values)")   
    ShroudConsoleLog("[00e600]More to come in future versions.")   
    ShroudConsoleLog("----------[-]")      
 end
@@ -68,12 +68,15 @@ function ShroudOnConsoleInput(type, source, message)
 	 local slot, word, stat = string.match(message, "(%d+) (%a+) (%d+)")
 	 slot0 = tonumber(slot)
 	 slot1 = tonumber(stat)
-	 swapSlot(panelList, slot0, slot1)	 
+	 swapSlot(panelList, slot0, slot1)
 
+      elseif string.match(message, "!reset") then
+	 resetStats()
+		  
       elseif string.match(message, "!help") then
       	 ShroudConsoleLog("[ff0000]Null Panel:[-]")      	 
       	 ShroudConsoleLog("[00e600]----------[-]")   	 
-      	 ShroudConsoleLog("[00e600]Here are a few commands: [-][ff3333]!np[-] (brings up menu), [ff3333]!list[-] (lists all stats greater than 0) [ff3333]!add #[-] (adds stat number to panel list), [ff3333]!remove #[-](remove stat in slot #) [ff3333]!replace # with #[-] (replace slot number with stat number) [ff3333]!swap # with #[-] (swap slot number with slot number)")
+      	 ShroudConsoleLog("[00e600]Here are a few commands: [-][ff3333]!np[-] (brings up menu), [ff3333]!list[-] (lists all stats greater than 0) [ff3333]!add #[-] (adds stat number to panel list), [ff3333]!remove #[-](remove stat in slot #) [ff3333]!replace # with #[-] (replace slot number with stat number) [ff3333]!swap # with #[-] (swap slot number with slot number) [ff3333]!reset[-](resets sync stats to base values)")
       	 ShroudConsoleLog("[00e600]More to come in future versions.")
       	 ShroudConsoleLog("----------[-]")
       end                  
@@ -155,23 +158,26 @@ function ShroudOnUpdate()
       screeeH = ShroudGetScreenY()
       charName = ShroudGetPlayerName()
 
-      if syncList.avoid.count > 120 then
+      if syncList.avoid.count > 90 then
 	 syncList.avoid.count = 0
 	 syncList.avoid.high = ShroudGetStatValueByNumber(16)
 	 syncList.avoid.mid = ShroudGetStatValueByNumber(16)
 	 syncList.avoid.low = ShroudGetStatValueByNumber(16)
-      elseif syncList.resist.count > 120 then
-	 syncList.avoid.count = 0	 
+      end
+      if syncList.resist.count > 90 then
+	 syncList.resist.count = 0	 
 	 syncList.resist.high = ShroudGetStatValueByNumber(17)
 	 syncList.resist.mid = ShroudGetStatValueByNumber(17)
 	 syncList.resist.low = ShroudGetStatValueByNumber(17)
-      elseif syncList.dodge.count > 120 then
-	 syncList.avoid.count = 0	 
+      end
+      if syncList.dodge.count > 90 then
+	 syncList.dodge.count = 0	 
 	 syncList.dodge.high = ShroudGetStatValueByNumber(129)
 	 syncList.dodge.mid = ShroudGetStatValueByNumber(129)
 	 syncList.dodge.low = ShroudGetStatValueByNumber(129)
-      elseif syncList.block.count > 120 then
-	 syncList.avoid.count = 0	 
+      end
+      if syncList.block.count > 90 then
+	 syncList.block.count = 0	 
 	 syncList.block.high = ShroudGetStatValueByNumber(131)
 	 syncList.block.mid = ShroudGetStatValueByNumber(131)
 	 syncList.block.low = ShroudGetStatValueByNumber(131)	    
@@ -576,7 +582,7 @@ function syncStat(inputString, sync, case, statNum)
       syncList[case].low = stat
    end
 
-   if bool == false or syncList[case].count < 30 then
+   if bool == false or syncList[case].count < 45 then
       return string.format("%s [%s: <color=%s>%.1f</color>]", inputString, statName, color, stat)
    elseif sync then
       return string.format("%s [%s: <color=%s>%.1f</color>]", inputString, statName, color, stat)      
@@ -587,3 +593,32 @@ end
 
 
    
+function resetStats()
+   ShroudConsoleLog("[ff0000]Null Panel:[-]")            
+   ShroudConsoleLog("[00e600]----------")   	          
+   ShroudConsoleLog("Reset sync stats to non buffed values")
+   ShroudConsoleLog("----------[-]")   	                      
+   for i, value in pairs(panelList) do
+      if value == 16 then
+	 syncList.avoid.count = 0
+	 syncList.avoid.high = ShroudGetStatValueByNumber(16)
+	 syncList.avoid.mid = ShroudGetStatValueByNumber(16)
+	 syncList.avoid.low = ShroudGetStatValueByNumber(16)
+      elseif value == 17 then
+	 syncList.resist.count = 0	 
+	 syncList.resist.high = ShroudGetStatValueByNumber(17)
+	 syncList.resist.mid = ShroudGetStatValueByNumber(17)
+	 syncList.resist.low = ShroudGetStatValueByNumber(17)	    
+      elseif value == 129 then
+	 syncList.dodge.count = 0	 	 
+	 syncList.dodge.high = ShroudGetStatValueByNumber(129)
+	 syncList.dodge.mid = ShroudGetStatValueByNumber(129)
+	 syncList.dodge.low = ShroudGetStatValueByNumber(129)	    
+      elseif value == 131 then
+	 syncList.block.count = 0	 	 	 
+	 syncList.block.high = ShroudGetStatValueByNumber(131)
+	 syncList.block.mid = ShroudGetStatValueByNumber(131)
+	 syncList.block.low = ShroudGetStatValueByNumber(131)	    
+      end
+   end
+end

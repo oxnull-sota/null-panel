@@ -143,7 +143,18 @@ function ShroudOnUpdate()
       end
    end
 
-   for i, value in pairs(panelList) do
+
+   
+   if (localTime - time) > 1 and init then
+      time = localTime
+      sync = not sync
+      text = makeStringFromList(panelList)
+      setAttunList()
+      totalWeight = getInvetoryWeight()
+      screenW = ShroudGetScreenX()
+      screeeH = ShroudGetScreenY()
+      charName = ShroudGetPlayerName()
+
       if syncList.avoid.count > 120 then
 	 syncList.avoid.count = 0
 	 syncList.avoid.high = ShroudGetStatValueByNumber(16)
@@ -160,22 +171,12 @@ function ShroudOnUpdate()
 	 syncList.dodge.mid = ShroudGetStatValueByNumber(129)
 	 syncList.dodge.low = ShroudGetStatValueByNumber(129)
       elseif syncList.block.count > 120 then
- 	 syncList.avoid.count = 0	 
+	 syncList.avoid.count = 0	 
 	 syncList.block.high = ShroudGetStatValueByNumber(131)
 	 syncList.block.mid = ShroudGetStatValueByNumber(131)
 	 syncList.block.low = ShroudGetStatValueByNumber(131)	    
       end
-   end
-   
-   if (localTime - time) > 1 and init then
-      time = localTime
-      sync = not sync
-      text = makeStringFromList(panelList)
-      setAttunList()
-      totalWeight = getInvetoryWeight()
-      screenW = ShroudGetScreenX()
-      screeeH = ShroudGetScreenY()
-      charName = ShroudGetPlayerName()      
+	 
    end
 
    if ShroudGetOnKeyDown("Mouse0") and (moveAble) then
